@@ -1,0 +1,41 @@
+The goal is to recieve automatic monthly emails from NSTAR with account numbers 
+and amount due, parse/filter the emails, store the data for easy display and 
+send an email of rent due.
+
+=================
+
+email.php
+
+For some unexplained reason, bluehost can only pipe emails to a php file.  So,
+this file only parses STDIN and redirects to one of the file names:
+
+  gas_1
+  electric_1
+  gas_2
+  electric_2
+
+=================
+
+util_parse.sh
+
+This script will parse the 4 files produced monthly and add them to the main
+database file - murdock.csv.  This consolidated file will allow for easy 
+use of the data for historic purposes, like:
+
+  - plotting yearly data for comparison
+  - calculating and sending automatic emails
+
+=================
+
+create_email.sh
+
+This script will use the murdock.csv database file to create 2 emails with
+the monthly utils plus rent.  The email file names take the form of 
+<month>_<number>, e.g. Feb_1 for unit #1's February bill (January utilities
+and February rent).
+
+=================
+
+email_utils.sh
+
+This script will send the 2 emails compiled from the monthly data.
