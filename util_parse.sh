@@ -30,7 +30,7 @@ unit_2_file="$mypath/unit_2_${filename_month}.txt"
 murdock_utils="$mypath/murdock.csv"
 
 # add primer line if necessary
-if ! grep -q "${month_year}" $murdock_utils; then
+if ! grep -q "${date_now}" $murdock_utils; then
 	printf "${date_now},electric_1,kw_1,gas_1,therm_1," >> $murdock_utils
 	printf "electric_2,kw_2,gas_2,therm_2\n" >> $murdock_utils
 fi
