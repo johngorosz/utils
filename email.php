@@ -10,6 +10,7 @@ $gas_2_num = "12059710165";
 $elec_1_num = "20400221048";
 $gas_1_num = "12059700133";
 $elec_2_num = "20400211098";
+$elec_3_num = "29128390019";
 
 $debug = 0;
 if ($debug) echo "begin parse\n";
@@ -32,6 +33,9 @@ while (!feof($fd)) {
         if ($debug) echo "file $outfile\n";
     } elseif (strpos($line,$elec_2_num) !== false) {
         $outfile = "electric_2";
+        if ($debug) echo "file $outfile\n";
+    } elseif (strpos($line,$elec_3_num) !== false) {
+        $outfile = "electric_3";
         if ($debug) echo "file $outfile\n";
     } else {
         if ($debug) {echo "no match for:\n"; echo "$line\n";}

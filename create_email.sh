@@ -9,12 +9,6 @@ fi
 
 mypath=`dirname "$0"`
 
-gas_2_num="\#1205 971 0165"
-elec_1_num="\#2040 022 1048"
-gas_1_num="\#1205 970 0133"
-elec_2_num="\#2040 021 1098"
-
-
 date_now=`date +%m/%Y`
 filename_month="`date --date='next month' +%b`"
 month_year="`date --date='next month' +%m/%Y`"
@@ -22,14 +16,11 @@ month_year="`date --date='next month' +%m/%Y`"
 #filename=test.txt
 filename1="$mypath/${filename_month}_1.txt"
 filename2="$mypath/${filename_month}_2.txt"
+filename3="$mypath/${filename_month}_3.txt"
 tempfile="$mypath/temp"
 emailfile="$mypath/${filename_month}_email"
 
-unit_1_file="$mypath/unit_1_${filename_month}.txt"
-unit_2_file="$mypath/unit_2_${filename_month}.txt"
-
 murdock_utils="$mypath/murdock.csv"
-
 
 # ------------------------------ #
 # ------------------------------ #
@@ -67,6 +58,13 @@ function calculate_rent
     rent_sum=$( echo "scale=2; $current + $ELEC_2 * ($mult_str) + $GAS_2 * ($mult_str)" | bc)
     printf -v rent_util_1 "${name1}: $%.02f" $rent_sum
 
+  elif [ $unit = 3 ];then
+    mult_str="1.0"
+
+    current=${rent1}
+    rent_sum=0
+    printf -v rent_util_1 "${name1}: $%.02f" $rent_sum
+
   fi
 }
 
@@ -84,6 +82,8 @@ ELEC_2=$( echo "$last_line" | cut -d, -f6 )
 KW_2=$( echo "$last_line" | cut -d, -f7 )
 GAS_2=$( echo "$last_line" | cut -d, -f8 )
 THERM_2=$( echo "$last_line" | cut -d, -f9 )
+ELEC_3=$( echo "$last_line" | cut -d, -f10 )
+KW_3=$( echo "$last_line" | cut -d, -f11 )
 
 #echo "parsed:"
 #echo "$DATE"
@@ -160,5 +160,27 @@ ${rent_util_2}
 FILE2
 
 cat $filename2
+
+# create unit 3 email
+unit=3
+rent="\$0"
+
+name1="common"
+rent1="0"
+rent_util_1=""
+name2=""
+rent2=""
+rent_util_2=""
+
+calculate_rent
+
+cat << FILE3 > $filename3
+Here are the utils for ${filename_month}
+
+electric        ${DATE} 	\$${ELEC_3}
+
+FILE3
+
+cat $filename3
 
 exit 0

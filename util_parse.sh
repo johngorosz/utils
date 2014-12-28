@@ -13,6 +13,7 @@ gas_2_num="12059710165"
 elec_1_num="20400221048"
 gas_1_num="12059700133"
 elec_2_num="20400211098"
+elec_3_num="29128390019"
 
 
 date_now=`date +%m/%Y`
@@ -32,7 +33,7 @@ murdock_utils="$mypath/murdock.csv"
 # add primer line if necessary
 if ! grep -q "${date_now}" $murdock_utils; then
 	printf "${date_now},electric_1,kw_1,gas_1,therm_1," >> $murdock_utils
-	printf "electric_2,kw_2,gas_2,therm_2\n" >> $murdock_utils
+	printf "electric_2,kw_2,gas_2,therm_2,electric_3,kw_3\n" >> $murdock_utils
 fi
 
 # ------------------------------ #
@@ -41,7 +42,7 @@ fi
 printf "0=%s\n" $0
 printf "mypath=%s\n" $mypath
 
-util_files='electric_1 gas_1 electric_2 gas_2'
+util_files='electric_1 gas_1 electric_2 gas_2 electric_3'
 
 ########################################################
 # parse each file
@@ -75,6 +76,9 @@ for file in $util_files; do
 	elif grep -q "$elec_2_num" $file; then
 	export unit=2
 	export bill_type="electric"
+	elif grep -q "$elec_3_num" $file; then
+	export unit=3
+	export bill_type="electric"
 	fi
 
 	# check for balance
@@ -102,125 +106,3 @@ echo "updated ${murdock_utils}"
 
 exit 0
 
-
-
-
-# assign filename
-if [ $unit = 1 ];then
-  filename="$unit_1_file"
-elif [ $unit = 2 ];then
-  filename="$unit_2_file"
-else
-  exit 0
-fi
-
-printf "Number of lines read:\t\t%d\n" $count
-printf "date:\t\t\t\t%s\n" $date_now
-printf "month:\t\t\t\t%s\n" $filename_month
-printf "Unit #:\t\t\t\t%d\n" $unit
-printf "Bill Type: \t\t\t%s\n" $bill_type
-printf "Bill amount:\t\t\t$%.02f\n" $price
-printf "Output file:\t\t\t%s\n" $filename
-
-
-
-rent="\$1000"
-if [ $unit = 1 ];then
-  rent="\$450/500"
-fi
-
-rent_sum=""
-
-rent_str=""
-bill_str=""
-name1_str=""
-name2_str=""
-name1=""
-name2=""
-
-printf -v rent_str "rent    \t%s\t\t%s" ${filename_month} $rent
-
-printf -v bill_str "%-8s\t%s\t$%.02f" $bill_type $date_now $price
-
-  if [ $unit = 1 ];then
-	name1="kristine"
-	name1_str="${name1}:\$450"
-	name2="frank"
-	name2_str="${name2}:\$500"
-  elif [ $unit = 2 ];then
-	name1="eddie-laura"
-	name1_str="${name1}:\$1000"
-	name2=""
-	name2_str=""
-  fi
-
-# if the destination file does not exist, create it
-if [ ! -e $filename ];then
-  echo "creating file"
-  printf "Here are the utilities for %s\n\nrent\ngas\nelectric\n\n%s\n%s\n" ${filename_month} $name1_str $name2_str > $filename
-fi
-
-# replace holders
-cp "${filename}" ${tempfile}
-eval "sed -e 's\\^.*${bill_type}.*\$\\${bill_str}\\' <${tempfile} >${filename}"
-
-cp "${filename}" ${tempfile}
-eval "sed -e 's\\rent.*\$\\${rent_str}\\' <${tempfile} >${filename}"
-
-current_str=""
-current=0
-
-if [ $unit = 1 ];then
-  if [ "$bill_type" == "gas" ]; then
-    mult_str=".33333"
-  else
-    mult_str=".25"
-  fi
-
-  current_str=`grep ${name1} ${filename}`
-  current=${current_str#*$}
-  rent_sum=$( echo "scale=2; $current + $price * ($mult_str)" | bc)
-  printf -v name1_str "${name1}: $%.02f" $rent_sum
-
-  current_str=`grep ${name2} ${filename}`
-  current=${current_str#*$}
-  rent_sum=$( echo "scale=2; $current + $price * ($mult_str)" | bc)
-  printf -v name2_str "${name2}: $%.02f" $rent_sum
-
-elif [ $unit = 2 ];then
-  mult_str="1.0"
-
-  current_str=`grep ${name1} ${filename}`
-  current=${current_str#*$}
-  rent_sum=$( echo "scale=2; $current + $price * ($mult_str)" | bc)
-  printf -v name1_str "${name1}: $%.02f" $rent_sum
-
-  if [ -n "$name2" ]; then
-    echo "no name 2 for unit 2"
-    current_str=`grep ${name2} ${filename}`
-    current=${current_str#*$}
-    rent_sum=$( echo "scale=2; $current + $price * (0.0)" | bc)
-    printf -v name2_str "${name2}: $%.02f" $rent_sum
-  fi
-fi
-
-# replace breakdown by name
-cp "${filename}" ${tempfile}
-eval "sed -e 's\\${name1}.*\$\\${name1_str}\\' <${tempfile} >${filename}"
-
-if [ -n "$name2" ]; then
-  echo "not replacing name 2"
-  cp "${filename}" ${tempfile}
-  eval "sed -e 's\\${name2}.*\$\\${name2_str}\\' <${tempfile} >${filename}"
-fi
-
-if [ "$1" == "verbose" ]; then
-  # do nothing
-  printf "email body:\n\n"
-  cat $filename
-else
-  #exec > $filename
-  printf "not verbose\n"
-fi
-
-exit 0
