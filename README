@@ -13,6 +13,7 @@ this file only parses STDIN and redirects to one of the file names:
   electric_1
   gas_2
   electric_2
+  electric_3
 
 =================
 

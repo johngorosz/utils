@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ "$1" != "verbose" ]; then
   exec > /dev/null 2>&1 
 fi
@@ -8,6 +8,9 @@ fi
 # configuration values
 
 mypath=`dirname "$0"`
+
+DEBUG="$mypath/.util_parse"
+date > $DEBUG
 
 gas_2_num="12059710165"
 elec_1_num="20400221048"
@@ -30,6 +33,8 @@ unit_2_file="$mypath/unit_2_${filename_month}.txt"
 
 murdock_utils="$mypath/murdock.csv"
 
+echo "checking primer" >> $DEBUG
+
 # add primer line if necessary
 if ! grep -q "${date_now}" $murdock_utils; then
 	printf "${date_now},electric_1,kw_1,gas_1,therm_1," >> $murdock_utils
@@ -47,7 +52,6 @@ util_files='electric_1 gas_1 electric_2 gas_2 electric_3'
 ########################################################
 # parse each file
 
-
 let count=0
 
 # ----------------------------- #
@@ -58,10 +62,16 @@ price_str=""
 export unit=0
 export bill_type=""
 
+echo "loop through files" >> $DEBUG
+
+pushd $mypath
+
 for file in $util_files; do
+  echo "file $file" >> $DEBUG
 	if [ ! -e $file ]; then
 		echo "ERROR: could not find file $file"
-		exit 1
+    echo "ERROR: could not find file $file" >> $DEBUG
+		continue
 	fi
 
 	if grep -q "$gas_1_num" $file; then
@@ -101,6 +111,8 @@ echo "price_str $price_str"
 	#echo $cmd
 	$cmd
 done
+
+popd
 
 echo "updated ${murdock_utils}"
 

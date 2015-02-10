@@ -11,6 +11,7 @@ mypath=`dirname "$0"`
 
 date_now=`date +%m/%Y`
 filename_month="`date --date='next month' +%b`"
+filename_month_full="`date --date='next month' +%B`"
 month_year="`date --date='next month' +%m/%Y`"
 
 #filename=test.txt
@@ -121,9 +122,9 @@ rent_util_2=""
 calculate_rent
 
 cat << FILE1 > $filename1
-Here is the rent for ${filename_month}
+The rent for ${filename_month_full} is ${rent}
 
-rent            ${filename_month}     	${rent}
+Utilities:
 gas             ${DATE} 	\$${GAS_1}
 electric        ${DATE} 	\$${ELEC_1}
 
@@ -148,9 +149,9 @@ rent_util_2=""
 calculate_rent
 
 cat << FILE2 > $filename2
-Here is the rent for ${filename_month}
+The rent for ${filename_month_full} is ${rent}
 
-rent            ${filename_month}     	${rent}
+Utilities:
 gas             ${DATE} 	\$${GAS_2}
 electric        ${DATE} 	\$${ELEC_2}
 
@@ -175,7 +176,7 @@ rent_util_2=""
 calculate_rent
 
 cat << FILE3 > $filename3
-Here are the utils for ${filename_month}
+The common utilities for ${filename_month_full}
 
 electric        ${DATE} 	\$${ELEC_3}
 
