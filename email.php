@@ -11,6 +11,7 @@ $elec_1_num = "20400221048";
 $gas_1_num = "12059700133";
 $elec_2_num = "20400211098";
 $elec_3_num = "29128390019";
+$avail = "is now available";
 
 $debug = 0;
 if ($debug) echo "begin parse\n";
@@ -20,6 +21,11 @@ while (!feof($fd)) {
     $line = fread($fd, 4096);
     $email .= $line;
 
+    // ignore summary email
+    if (strpos($line,$avail) !== false) {
+      fclose($fd);
+      exit();
+    }
 
     // figure out file name
     if (strpos($line,$gas_1_num) !== false) {

@@ -68,6 +68,7 @@ pushd $mypath
 
 for file in $util_files; do
   echo "file $file" >> $DEBUG
+  echo "file $file"
 	if [ ! -e $file ]; then
 		echo "ERROR: could not find file $file"
     echo "ERROR: could not find file $file" >> $DEBUG
@@ -92,17 +93,12 @@ for file in $util_files; do
 	fi
 
 	# check for balance
-	if grep -q "in the amount of" $file; then
-	price_str=$(grep "in the amount of" $file)
-echo "price_str $price_str"
-		# cut leading string
-	price_str=${price_str#*in the amount of }
-echo "price_str $price_str"
-		# cut longest end string containing " "
-	price_str=${price_str%% *}
-echo "price_str $price_str"
-		# cut leading $
-	export price=${price_str#$}
+
+	price_str=$(egrep '\$[0-9]+\.[0-9][0-9]' $file)
+	if [ -n "$price_str" ]; then
+  # remove trailing = and cat lines
+  price=$(echo "$price_str" | sed 's/.*\$\([0-9]\+\.[0-9][0-9]\).*/\1/g')
+  echo "amount $price"
 	fi
 
 	#echo "replacing ${bill_type}_${unit} with ${price}"
